@@ -4,7 +4,7 @@ if (!isset($_SESSION['user'])) {
     header('Location: login.php');
     exit;
 }
-require_once 'registration.php';
+require_once "User_class.php";
 $new_user = new User();
 
 require_once 'database.php';
@@ -23,27 +23,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $new_user->setPosition($_POST["position"]);
     $new_user->setEmail($_POST["email"]);
     $new_user->setMobile1($_POST["mobile_1"]);
-    $newUser->setMobile_2($_POST["mobile_2"]);
-    $newUser->setMobile_3($_POST["mobile_3"]);
-
-    $sql = "UPDATE users SET 
-    first_name = '$firstName',
-    last_name = '$lastName',
-    company_name = '$companyName',
-    position = '$position',
-    email = '$email',
-    mobile_1 = '$mobile1',
-    mobile_2 = '$mobile2',
-    mobile_3 = '$mobile3'
-    WHERE id = $userId";
-    if (mysqli_query($conn, $sql)) {
-        mysqli_close($conn);
-        header('Location: index.php');
-        exit;
+    $new_user->setMobile2($_POST["mobile_2"]);
+    $new_user->setMobile3($_POST["mobile_3"]);
+    $errors = array();
+    if (trim($new_user->getFirstName()) == '' or  trim($new_user->getLastName()) == '' or  trim($new_user->getEmail()) == '') {
+        array_push($errors, "Not all required fields are filled!");
+    }
+    if (!filter_var($new_user->getEmail(), FILTER_VALIDATE_EMAIL)) {
+        array_push($errors, "Incorrect email!");
+    }
+    require_once "database.php";
+    $sql = "SELECT * FROM users WHERE email = '{$new_user->getEmail()}'";
+    $result = mysqli_query($conn, $sql);
+    $rowCount = mysqli_num_rows($result);
+    if ($rowCount > 0) {
+        $userData = mysqli_fetch_assoc($result);
+        if ($userData['id'] != $userId) {
+            array_push($errors, "This email is already registered!");
+        }
+    }
+    if (count($errors) > 0) {
+        foreach ($errors as $error) {
+            echo "<div class='alert alert-danger'>$error</div>";
+        }
     } else {
+        $sql = "UPDATE users SET 
+    first_name = '{$new_user->getFirstName()}',
+    last_name = '{$new_user->getLastName()}',
+    company_name = '{$new_user->getCompanyName()}',
+    position = '{$new_user->getPosition()}',
+    email = '{$new_user->getEmail()}',
+    mobile_1 = '{$new_user->getMobile1()}',
+    mobile_2 = '{$new_user->getMobile2()}',
+    mobile_3 = '{$new_user->getMobile3()}'
+    WHERE id = $userId";
+        if (mysqli_query($conn, $sql)) {
+            mysqli_close($conn);
+            header('Location: index.php');
+            exit;
+        } else {
 
-        echo "Ошибка при сохранении изменений: " . mysqli_error($conn);
-        mysqli_close($conn);
+            echo "Error with updating account: " . mysqli_error($conn);
+            mysqli_close($conn);
+        }
     }
 }
 ?>
@@ -54,29 +76,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- подключаем bootstrap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
-    <title>Редактирование аккаунта</title>
+    <title>Account edit</title>
 </head>
 
 <body>
     <div class="container">
-        <h2>Редактирование</h2>
+        <h2>Editing</h2>
         <form action="edit_account.php" method="POST">
+                <!-- выводим поля, которые можно отредактировать  -->
             <div class="form-group">
-                <label for="first_name">Имя:</label>
+                <label for="first_name">Name:</label>
                 <input class="form-control" type="text" name="first_name" value="<?php echo $userData['first_name']; ?>"><br>
             </div>
             <div class="form-group">
-                <label for="last_name">Фамилия:</label>
+                <label for="last_name">Surname:</label>
                 <input class="form-control" type="text" name="last_name" value="<?php echo $userData['last_name']; ?>"><br>
             </div>
             <div class="form-group">
-                <label for="company_name">Название компании:</label>
+                <label for="company_name">Company name:</label>
                 <input class="form-control" type="text" name="company_name" value="<?php echo $userData['company_name']; ?>"><br>
             </div>
             <div class="form-group">
-                <label for="position">Должность:</label>
+                <label for="position">Position:</label>
                 <input class="form-control" type="text" name="position" value="<?php echo $userData['position']; ?>"><br>
             </div>
             <div class="form-group">
@@ -84,15 +108,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input class="form-control" type="email" name="email" value="<?php echo $userData['email']; ?>"><br>
             </div>
             <div class="form-group">
-                <label for="mobile_1">Номер телефона:</label>
+                <label for="mobile_1">Phone number:</label>
                 <input class="form-control" type="text" name="mobile_1" value="<?php echo $userData['mobile_1']; ?>"><br>
             </div>
             <div class="form-group">
-                <label for="mobile_2">Дополнительный телефон:</label>
+                <label for="mobile_2">Additional phone number:</label>
                 <input class="form-control" type="text" name="mobile_2" value="<?php echo $userData['mobile_2']; ?>"><br>
             </div>
             <div class="form-group">
-                <label for="mobile_3">Дополнительный телефон:</label>
+                <label for="mobile_3">Additional phone number:</label>
                 <input class="form-control" type="text" name="mobile_3" value="<?php echo $userData['mobile_3']; ?>"><br>
             </div>
             <div class="btn btn-primary">
