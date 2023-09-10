@@ -12,7 +12,7 @@ if (isset($_SESSION['user'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration form</title>
-     <!-- подключаем bootstrap -->
+    <!-- подключаем bootstrap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -46,11 +46,11 @@ if (isset($_SESSION['user'])) {
                 if (!filter_var($new_user->getEmail(), FILTER_VALIDATE_EMAIL)) {
                     array_push($errors, "Incorrect email!");
                 }
-               // проверка на то, что пароль длиннее 8 символов
+                // проверка на то, что пароль длиннее 8 символов
                 if (strlen($new_user->getPassword()) < 8) {
                     array_push($errors, "Password must contain at least 8 characters!");
                 }
-                 // проверка на то, что пароли совпадают
+                // проверка на то, что пароли совпадают
                 if ($new_user->getPassword() != $new_user->getRepeatPassword()) {
                     array_push($errors, "Passwords do not match!");
                 }
@@ -105,7 +105,7 @@ if (isset($_SESSION['user'])) {
                     color: red;
                 }
             </style>
-             <!-- выводим все поля для регистрации -->
+            <!-- выводим все поля для регистрации -->
             <div class="form-group">
                 <input type="text" name="first_name" class="form-control" placeholder="First name*">
             </div>

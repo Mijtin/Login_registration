@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($rowCount > 0) {
         $userData = mysqli_fetch_assoc($result);
         // костыль, если это администратор, тогда он может ввести даже повторяющийся email
-        if (!isset($_SESSION['admin'])){
+        if (!isset($_SESSION['admin'])) {
             if ($userData['id'] != $userId) {
                 array_push($errors, "This email is already registered!");
             }
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } else {
         // проверка на то, является ли пользователь администратором и если да, тогда обновляяем данные
-        if (isset($_SESSION['admin'])){
+        if (isset($_SESSION['admin'])) {
             $sql = "UPDATE users SET 
             first_name = '{$new_user->getFirstName()}',
             last_name = '{$new_user->getLastName()}',
@@ -71,15 +71,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             mobile_2 = '{$new_user->getMobile2()}',
             mobile_3 = '{$new_user->getMobile3()}'
             WHERE email = '{$new_user->getEmail()}'";
-                if (mysqli_query($conn, $sql)) {
-                    mysqli_close($conn);
-                    header('Location: index.php');
-                    exit;
-                } else {
-        
-                    echo "Error with updating account: " . mysqli_error($conn);
-                    mysqli_close($conn);
-                }
+            if (mysqli_query($conn, $sql)) {
+                mysqli_close($conn);
+                header('Location: index.php');
+                exit;
+            } else {
+
+                echo "Error with updating account: " . mysqli_error($conn);
+                mysqli_close($conn);
+            }
         }
         // если пользователь не является администратором, тогда созрняем через id 
         $sql = "UPDATE users SET 

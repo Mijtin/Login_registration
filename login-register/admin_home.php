@@ -21,11 +21,11 @@ if (!isset($_SESSION['user']) ||  !$_SESSION['admin']) {
         <h2>Admin</h2>
         <!-- кнопки для администратора -->
         <form action="edit_account.php" method="GET">
-            <div class="form-group"> <input type="email" name="email" class="form-control" placeholder="Email"> </div> 
-        <button type="submit" class="btn btn-primary">Edit Account</button>
+            <div class="form-group"> <input type="email" name="email" class="form-control" placeholder="Email"> </div>
+            <button type="submit" class="btn btn-primary">Edit Account</button>
         </form>
         <form action="delete_account.php" method="GET" style="margin-top: 20px;">
-            <div class="form-group"> <input type="email" name="email" class="form-control" placeholder="Email" > </div> 
+            <div class="form-group"> <input type="email" name="email" class="form-control" placeholder="Email"> </div>
             <button type="submit" class="btn btn-secondary" style="margin-bottom: 20px;">Delete account</button>
         </form>
         <a href="index.php" type="submit" name="confirm" class="btn btn-primary">Cancel</a>

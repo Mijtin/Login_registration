@@ -1,4 +1,3 @@
-
 <?php
 // проверка на то, авторизован ли пользователь
 session_start();
@@ -20,9 +19,9 @@ if (!isset($_SESSION['user'])) {
 
 <body>
     <div class="container">
-        <?php if (isset($_SESSION['admin'])): ?>
-        <!-- кнопка для панели администратора -->
-        <a href="admin_home.php" class="btn btn-success">Admin Panel</a>
+        <?php if (isset($_SESSION['admin'])) : ?>
+            <!-- кнопка для панели администратора -->
+            <a href="admin_home.php" class="btn btn-success">Admin Panel</a>
         <?php endif; ?>
         <h1>Welcome</h1>
         <?php

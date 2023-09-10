@@ -5,7 +5,7 @@ if (!isset($_SESSION['user'])) {
     header('Location: login.php');
 }
 // проверка на то, является ли авторизованный пользователь администратором
-if (isset($_SESSION['admin'])){
+if (isset($_SESSION['admin'])) {
     require_once 'database.php';
     if (isset($_GET['email'])) {
         $email = $_GET['email'];
