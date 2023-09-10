@@ -1,4 +1,5 @@
 <?php
+// проверка на то, авторизован ли пользователь
 session_start();
 if (!isset($_SESSION['user'])) {
     header('Location: login.php');
@@ -9,12 +10,19 @@ $new_user = new User();
 
 require_once 'database.php';
 $userId = $_SESSION['user_id'];
+// получаем email от администратора, чтобы вывести человека из бд с этим email 
+if (isset($_GET['email'])) {
+    $email = $_GET['email'];
 
-$sql = "SELECT * FROM users WHERE id = $userId";
-$result = mysqli_query($conn, $sql);
-$userData = mysqli_fetch_assoc($result);
-
-
+    $sql = "SELECT * FROM users WHERE email = '{$email}'";
+    $result = mysqli_query($conn, $sql);
+    $userData = mysqli_fetch_assoc($result);
+} else {
+    // это для обычного пользователя по его id 
+    $sql = "SELECT * FROM users WHERE id = $userId";
+    $result = mysqli_query($conn, $sql);
+    $userData = mysqli_fetch_assoc($result);
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $new_user->setFirstName($_POST["first_name"]);
@@ -26,6 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $new_user->setMobile2($_POST["mobile_2"]);
     $new_user->setMobile3($_POST["mobile_3"]);
     $errors = array();
+    // обычные проверки как и при регистрации
     if (trim($new_user->getFirstName()) == '' or  trim($new_user->getLastName()) == '' or  trim($new_user->getEmail()) == '') {
         array_push($errors, "Not all required fields are filled!");
     }
@@ -38,8 +47,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $rowCount = mysqli_num_rows($result);
     if ($rowCount > 0) {
         $userData = mysqli_fetch_assoc($result);
-        if ($userData['id'] != $userId) {
-            array_push($errors, "This email is already registered!");
+        // костыль, если это администратор, тогда он может ввести даже повторяющийся email
+        if (!isset($_SESSION['admin'])){
+            if ($userData['id'] != $userId) {
+                array_push($errors, "This email is already registered!");
+            }
         }
     }
     if (count($errors) > 0) {
@@ -47,6 +59,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo "<div class='alert alert-danger'>$error</div>";
         }
     } else {
+        // проверка на то, является ли пользователь администратором и если да, тогда обновляяем данные
+        if (isset($_SESSION['admin'])){
+            $sql = "UPDATE users SET 
+            first_name = '{$new_user->getFirstName()}',
+            last_name = '{$new_user->getLastName()}',
+            company_name = '{$new_user->getCompanyName()}',
+            position = '{$new_user->getPosition()}',
+            email = '{$new_user->getEmail()}',
+            mobile_1 = '{$new_user->getMobile1()}',
+            mobile_2 = '{$new_user->getMobile2()}',
+            mobile_3 = '{$new_user->getMobile3()}'
+            WHERE email = '{$new_user->getEmail()}'";
+                if (mysqli_query($conn, $sql)) {
+                    mysqli_close($conn);
+                    header('Location: index.php');
+                    exit;
+                } else {
+        
+                    echo "Error with updating account: " . mysqli_error($conn);
+                    mysqli_close($conn);
+                }
+        }
+        // если пользователь не является администратором, тогда созрняем через id 
         $sql = "UPDATE users SET 
     first_name = '{$new_user->getFirstName()}',
     last_name = '{$new_user->getLastName()}',
@@ -76,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <!-- подключаем bootstrap -->
+    <!-- подключаем bootstrap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
     <title>Account edit</title>
@@ -86,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="container">
         <h2>Editing</h2>
         <form action="edit_account.php" method="POST">
-                <!-- выводим поля, которые можно отредактировать  -->
+            <!-- выводим поля, которые можно отредактировать  -->
             <div class="form-group">
                 <label for="first_name">Name:</label>
                 <input class="form-control" type="text" name="first_name" value="<?php echo $userData['first_name']; ?>"><br>

@@ -1,4 +1,5 @@
 <?php
+// проверка на то, авторизован ли пользователь
 session_start();
 if (isset($_SESSION['user'])) {
     header('Location: index.php');
@@ -36,8 +37,13 @@ if (isset($_SESSION['user'])) {
                 // проверяем пароль
                 if (password_verify($new_user->getPassword(), $user["password"])) {
                     session_start();
+                    // записываем данные пользователя в сессию
                     $_SESSION["user"] = "yes";
                     $_SESSION["user_id"] = $user["id"];
+                    // проверяем по почте является ли человек админом
+                    if ($new_user->getEmail() === 'email1@mail.ru') {
+                        $_SESSION['admin'] = true;
+                    }
                     header("Location: index.php");
                     die();
                 } else {

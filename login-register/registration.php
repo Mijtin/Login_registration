@@ -1,4 +1,5 @@
 <?php
+// проверка на то, авторизован ли пользователь
 session_start();
 if (isset($_SESSION['user'])) {
     header('Location: index.php');

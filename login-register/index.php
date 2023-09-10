@@ -1,4 +1,6 @@
+
 <?php
+// проверка на то, авторизован ли пользователь
 session_start();
 if (!isset($_SESSION['user'])) {
     header('Location: login.php');
@@ -18,10 +20,15 @@ if (!isset($_SESSION['user'])) {
 
 <body>
     <div class="container">
-
+        <?php if (isset($_SESSION['admin'])): ?>
+        <!-- кнопка для панели администратора -->
+        <a href="admin_home.php" class="btn btn-success">Admin Panel</a>
+        <?php endif; ?>
         <h1>Welcome</h1>
         <?php
+        // Подключение к БД
         require_once "database.php";
+
         $recordsPerPage = 10;
         // Вычисление номера страницы
         if (isset($_GET['page']) && is_numeric($_GET['page'])) {
@@ -41,6 +48,8 @@ if (!isset($_SESSION['user'])) {
             echo '<th>Name</th>';
             echo '<th>Surname</th>';
             echo '<th>Email</th>';
+            echo '<th>Company name</th>';
+            echo '<th>Position</th>';
             echo '</tr>';
             // Вывод данных каждого аккаунта
             while ($row = $result->fetch_assoc()) {
@@ -48,6 +57,8 @@ if (!isset($_SESSION['user'])) {
                 echo '<td>' . $row["first_name"] . '</td>';
                 echo '<td>' . $row["last_name"] . '</td>';
                 echo '<td>' . $row["email"] . '</td>';
+                echo '<td>' . $row["company_name"] . '</td>';
+                echo '<td>' . $row["position"] . '</td>';
                 echo '</tr>';
             }
 
@@ -73,6 +84,7 @@ if (!isset($_SESSION['user'])) {
 
         $conn->close();
         ?>
+
         <!-- кнопки для других действий -->
         <a href="edit_account.php" class="btn btn-primary">Edit your account</a>
         <a href="logout.php" class="btn btn-warning" style="margin-left: 10px;">Log out</a>
